@@ -6,6 +6,7 @@ from pydantic import BaseModel
 app = FastAPI()
 
 class User(BaseModel):
+    id: int
     name: str
     surname: str
     url: str
@@ -19,3 +20,20 @@ users_list = [User(id=1, name="Agustín", surname="Pedrote", url="https://agus.d
 @app.get("/users")
 async def users():
     return users_list
+
+# Path http://127.0.0.1:8000/user/1
+@app.get("/user/{id}")
+async def user(id: int):
+    return search_user(id)
+
+# Query http://127.0.0.1:8000/user/?id=1
+@app.get("/user/")
+async def user(id: int):
+    return search_user(id)
+
+def search_user(id: int):
+    users = filter(lambda user: user.id == id, users_list)
+    try:
+        return list(users)[0]
+    except:
+        return {"error": "No se ha encontrado el usuario"}
